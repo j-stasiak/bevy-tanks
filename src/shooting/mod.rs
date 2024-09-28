@@ -19,7 +19,7 @@ pub struct ShotProjectileEvent {
 #[derive(Event)]
 pub struct ProjectileHitEvent {
     projectile_id: Entity,
-    entities_hit: [Entity],
+    entities_hit: Vec<Entity>,
 }
 
 #[derive(Component)]

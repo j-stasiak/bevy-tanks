@@ -1,7 +1,7 @@
 pub mod components;
 
-use bevy::prelude::*;
-use components::{Tank, TankController, TankGun};
+use bevy::{asset::AssetPath, prelude::*};
+use components::{Tank, TankAssets, TankController, TankGun, TANK_COLORS, TANK_TYPES};
 
 use crate::{
     camera::{CameraFollow, GameCamera},
@@ -13,6 +13,10 @@ pub struct TankPlugin;
 
 impl Plugin for TankPlugin {
     fn build(&self, app: &mut App) {
+        app.insert_resource(TankAssets {
+            handles: vec![],
+            loading_items: 0
+        });
         app.add_systems(Startup, load_tank);
         app.add_systems(Update, shoot_handler);
         app.add_systems(FixedUpdate, (rotate_gun_to_mouse, move_tank));
@@ -154,4 +158,21 @@ fn shoot_handler(
             kind: ProjectileKind::Shell,
         });
     }
+}
+
+fn load_tanks(asset_server: Res<AssetServer>, mut tank_handlers: ResMut<TankAssets>) {
+    for tank_type in TANK_TYPES {
+        for color in TANK_COLORS {
+            let gun_path: AssetPath = format!("sprites/tanks/{tank_type}/gun-{color}").into();
+            let hull_path: AssetPath = format!("sprites/tanks/{tank_type}/hull-{color}").into();
+            
+            let gun_handler: Handle<Image> = asset_server.load(gun_path);
+            let hull_handler: Handle<Image> = asset_server.load(hull_path);
+
+            tank_handlers.handles.push(gun_handler.clone_weak());
+            tank_handlers.handles.push(hull_handler.clone_weak());
+        }
+    }
+
+    tank_handlers.loading_items += tank_handlers.handles.len() as i32;
 }
