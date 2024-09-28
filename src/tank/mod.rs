@@ -4,9 +4,9 @@ use bevy::prelude::*;
 use components::{Tank, TankController, TankGun};
 
 use crate::{
+    camera::{CameraFollow, GameCamera},
     get_single_or_return,
     shooting::{ProjectileKind, ShotProjectileEvent},
-    GameCamera,
 };
 
 pub struct TankPlugin;
@@ -26,6 +26,7 @@ fn load_tank(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn((
             Name::new("Le tank"),
+            CameraFollow,
             Tank {
                 speed: 400.,
                 turning_speed: f32::to_radians(90.),

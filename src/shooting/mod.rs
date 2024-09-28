@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::collider::Collidable;
+
 const BASE_BULLET_SPEED_MULTIPLIER: i32 = 25;
 
 pub enum ProjectileKind {
@@ -39,8 +41,6 @@ impl Plugin for ShootingPlugin {
     }
 }
 
-// fn load_assets(mut commands: Commands, asset_server: Res<AssetServer>) {}
-
 fn spawn_projectile(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -54,6 +54,7 @@ fn spawn_projectile(
 
         commands.spawn((
             Projectile { speed, damage },
+            Collidable,
             SpriteBundle {
                 transform: Transform {
                     rotation: event.rotation,
@@ -89,7 +90,6 @@ fn despawn_projectile(
     for (transform, entity) in &projectile_query {
         let Vec3 { x, y, .. } = transform.translation;
         if x < -1280. || x > 1280. || y < -960. || y > 960. {
-            // Despawn the entity if it's out of bounds
             commands.entity(entity).despawn_recursive();
         }
     }
