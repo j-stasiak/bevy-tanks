@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::collider::Collidable;
+use crate::{collider::Collidable, ApplicationState};
 
 const BASE_BULLET_SPEED_MULTIPLIER: i32 = 25;
 
@@ -33,10 +33,15 @@ pub struct ShootingPlugin;
 impl Plugin for ShootingPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<ShotProjectileEvent>();
-        app.add_systems(Update, spawn_projectile);
+        app.add_systems(
+            Update,
+            spawn_projectile.run_if(in_state(ApplicationState::InGame)),
+        );
         app.add_systems(
             FixedUpdate,
-            (despawn_projectile, render_projectiles).chain(),
+            (despawn_projectile, render_projectiles)
+                .chain()
+                .run_if(in_state(ApplicationState::InGame)),
         );
     }
 }

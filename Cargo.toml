@@ -4,8 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = "0.14.2"
+bevy = { version = "0.14.2", features = ["dynamic_linking"] }
+# for release build
+# bevy = "0.14.2"
 bevy-inspector-egui = "=0.26.0"
+bevy_dev_tools = "0.14.2"
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
@@ -14,3 +17,7 @@ opt-level = 1
 # Enable high optimizations for dependencies (incl. Bevy), but not for our code:
 [profile.dev.package."*"]
 opt-level = 3
+
+[features]
+default = ["bevy_dev_tools"]
+bevy_dev_tools = []

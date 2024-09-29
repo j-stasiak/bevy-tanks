@@ -1,6 +1,9 @@
 use bevy::{input::mouse::MouseWheel, prelude::*};
 
-use crate::{get_single_mut_or_return, get_single_or_return};
+use crate::{get_single_mut_or_return, get_single_or_return, ApplicationState};
+
+#[derive(Component)]
+pub struct MainMenuCamera;
 
 #[derive(Component)]
 pub struct GameCamera;
@@ -15,9 +18,17 @@ pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, init_camera);
-        app.add_systems(Update, (follow_entity, zoom_camera));
+        app.add_systems(OnEnter(ApplicationState::MainMenu), init_main_menu_camera);
+        app.add_systems(OnEnter(ApplicationState::InGame), init_camera);
+        app.add_systems(
+            Update,
+            (follow_entity, zoom_camera).run_if(in_state(ApplicationState::InGame)),
+        );
     }
+}
+
+fn init_main_menu_camera(mut commands: Commands) {
+    commands.spawn((Camera2dBundle::default(), MainMenuCamera));
 }
 
 fn init_camera(mut commands: Commands) {

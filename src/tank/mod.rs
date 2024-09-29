@@ -1,31 +1,42 @@
 pub mod components;
 
 use bevy::{asset::AssetPath, prelude::*};
-use components::{Tank, TankAssets, TankController, TankGun, TANK_COLORS, TANK_TYPES};
+use components::{
+    SpawnTankEvent, Tank, TankAssetsLoader, TankConfiguration, TankController, TankGun,
+    TANK_COLORS, TANK_TYPES,
+};
 
 use crate::{
     camera::{CameraFollow, GameCamera},
     get_single_or_return,
     shooting::{ProjectileKind, ShotProjectileEvent},
+    ApplicationState,
 };
 
 pub struct TankPlugin;
 
 impl Plugin for TankPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(TankAssets {
+        app.insert_resource(TankAssetsLoader {
             handles: vec![],
-            loading_items: 0
+            loading_items: 0,
         });
-        app.add_systems(Startup, load_tank);
-        app.add_systems(Update, shoot_handler);
-        app.add_systems(FixedUpdate, (rotate_gun_to_mouse, move_tank));
+        app.add_event::<SpawnTankEvent>();
+        app.add_systems(OnEnter(ApplicationState::InGame), load_tank);
+        app.add_systems(
+            Update,
+            (shoot_handler, spawn_tank_listener).run_if(in_state(ApplicationState::InGame)),
+        );
+        app.add_systems(
+            FixedUpdate,
+            (rotate_gun_to_mouse, move_tank).run_if(in_state(ApplicationState::InGame)),
+        );
     }
 }
 
 fn load_tank(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let tank_hull_handle: Handle<Image> = asset_server.load("sprites/tank-hull-green-default.png");
-    let tank_gun_handle: Handle<Image> = asset_server.load("sprites/tank-gun-green-default.png");
+    let tank_hull_handle: Handle<Image> = asset_server.load("sprites/tanks/falcon/hull-blue.png");
+    let tank_gun_handle: Handle<Image> = asset_server.load("sprites/tanks/falcon/gun-blue.png");
 
     commands
         .spawn((
@@ -34,7 +45,7 @@ fn load_tank(mut commands: Commands, asset_server: Res<AssetServer>) {
             Tank {
                 speed: 400.,
                 turning_speed: f32::to_radians(90.),
-                mounting_point: Vec2::new(0., -40.),
+                mounting_point: Vec2::new(0., -20.),
             },
             TankController,
             SpriteBundle {
@@ -160,12 +171,64 @@ fn shoot_handler(
     }
 }
 
-fn load_tanks(asset_server: Res<AssetServer>, mut tank_handlers: ResMut<TankAssets>) {
+fn spawn_tank_listener(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut event_reader: EventReader<SpawnTankEvent>,
+) {
+    for event in event_reader.read() {
+        let tank_type = event.r#type.get_folder_name();
+        let TankConfiguration {
+            speed,
+            turning_speed,
+            mounting_point,
+            gun_turning_speed,
+        } = event.r#type.get_configuration();
+        let tank_color = event.color.get_folder_name();
+
+        let tank_hull_handle: Handle<Image> =
+            asset_server.load(format!("sprites/tanks/{tank_type}/hull-{tank_color}.png"));
+        let tank_gun_handle: Handle<Image> =
+            asset_server.load(format!("sprites/tanks/{tank_type}/gun-{tank_color}.png"));
+
+        commands
+            .spawn((
+                Name::new("Le tank"),
+                CameraFollow,
+                Tank {
+                    speed,
+                    turning_speed,
+                    mounting_point,
+                },
+                TankController,
+                SpriteBundle {
+                    texture: tank_hull_handle,
+                    transform: Transform::from_translation(event.spawn_place.extend(0.)),
+                    ..default()
+                },
+            ))
+            .with_children(|parent| {
+                parent.spawn((
+                    Name::new("Le gun"),
+                    TankGun {
+                        turning_speed: gun_turning_speed,
+                    },
+                    SpriteBundle {
+                        texture: tank_gun_handle,
+                        transform: Transform::from_xyz(0., 0., 2.),
+                        ..default()
+                    },
+                ));
+            });
+    }
+}
+
+fn load_tanks(asset_server: Res<AssetServer>, mut tank_handlers: ResMut<TankAssetsLoader>) {
     for tank_type in TANK_TYPES {
         for color in TANK_COLORS {
             let gun_path: AssetPath = format!("sprites/tanks/{tank_type}/gun-{color}").into();
             let hull_path: AssetPath = format!("sprites/tanks/{tank_type}/hull-{color}").into();
-            
+
             let gun_handler: Handle<Image> = asset_server.load(gun_path);
             let hull_handler: Handle<Image> = asset_server.load(hull_path);
 
