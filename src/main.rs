@@ -7,12 +7,17 @@ pub mod tank;
 pub mod ui;
 
 use bevy::prelude::*;
+use bevy::render::settings::Backends;
+use bevy::render::settings::WgpuSettings;
+use bevy::render::RenderPlugin;
 use bevy_dev_tools::ui_debug_overlay::DebugUiPlugin;
 use bevy_dev_tools::ui_debug_overlay::UiDebugOptions;
 
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_lunex::UiDefaultPlugins;
 use camera::CameraPlugin;
 use main_menu::MainMenuPlugin;
+use main_menu::MainMenuRoute;
 use shooting::ShootingPlugin;
 use tank::TankPlugin;
 
@@ -31,19 +36,29 @@ fn main() {
                 primary_window: Some(Window {
                     title: "Tank game".into(),
                     resolution: (1280.0, 960.0).into(),
-                    resizable: false,
+                    resizable: true,
+                    ..default()
+                }),
+                ..default()
+            })
+            // Required only for older graphics cards that don't support Vulcan that well
+            .set(RenderPlugin {
+                render_creation: bevy::render::settings::RenderCreation::Automatic(WgpuSettings {
+                    backends: Some(Backends::GL),
                     ..default()
                 }),
                 ..default()
             })
             .build(),
     )
-    .insert_state(ApplicationState::MainMenu)
+    .add_plugins(UiDefaultPlugins)
     .add_plugins(MainMenuPlugin)
     .add_plugins(CameraPlugin)
     .add_plugins(WorldInspectorPlugin::new())
     .add_plugins(TankPlugin)
-    .add_plugins(ShootingPlugin);
+    .add_plugins(ShootingPlugin)
+    .insert_state(ApplicationState::MainMenu)
+    .add_systems(Startup, setup);
 
     #[cfg(feature = "bevy_dev_tools")]
     {
@@ -52,6 +67,10 @@ fn main() {
     }
 
     app.run();
+}
+
+fn setup(mut commands: Commands) {
+    commands.spawn(MainMenuRoute);
 }
 
 #[cfg(feature = "bevy_dev_tools")]

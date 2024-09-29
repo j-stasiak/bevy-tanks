@@ -1,6 +1,7 @@
 use super::ui_component::UiComponent;
 use bevy::prelude::*;
 
+#[derive(Component)]
 pub struct PrimaryButton {
     pub text: &'static str,
     pub on_click: fn() -> (),

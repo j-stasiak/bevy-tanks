@@ -1,4 +1,5 @@
 use bevy::{input::mouse::MouseWheel, prelude::*};
+use bevy_lunex::prelude::MainUi;
 
 use crate::{get_single_mut_or_return, get_single_or_return, ApplicationState};
 
@@ -28,7 +29,13 @@ impl Plugin for CameraPlugin {
 }
 
 fn init_main_menu_camera(mut commands: Commands) {
-    commands.spawn((Camera2dBundle::default(), MainMenuCamera));
+    commands.spawn((
+        Camera2dBundle {
+            transform: Transform::from_xyz(0.0, 0.0, 1000.0),
+            ..default()
+        },
+        MainUi,
+    ));
 }
 
 fn init_camera(mut commands: Commands) {
