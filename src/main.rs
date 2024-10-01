@@ -10,10 +10,10 @@ use bevy::prelude::*;
 use bevy::render::settings::Backends;
 use bevy::render::settings::WgpuSettings;
 use bevy::render::RenderPlugin;
-use bevy_dev_tools::ui_debug_overlay::DebugUiPlugin;
-use bevy_dev_tools::ui_debug_overlay::UiDebugOptions;
 
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_lunex::prelude::MainUi;
+use bevy_lunex::UiDebugPlugin;
 use bevy_lunex::UiDefaultPlugins;
 use camera::CameraPlugin;
 use main_menu::MainMenuPlugin;
@@ -57,28 +57,13 @@ fn main() {
     .add_plugins(WorldInspectorPlugin::new())
     .add_plugins(TankPlugin)
     .add_plugins(ShootingPlugin)
+    .add_plugins(UiDebugPlugin::<MainUi>::new())
     .insert_state(ApplicationState::MainMenu)
     .add_systems(Startup, setup);
-
-    #[cfg(feature = "bevy_dev_tools")]
-    {
-        app.add_plugins(DebugUiPlugin)
-            .add_systems(Update, toggle_overlay);
-    }
 
     app.run();
 }
 
 fn setup(mut commands: Commands) {
     commands.spawn(MainMenuRoute);
-}
-
-#[cfg(feature = "bevy_dev_tools")]
-// The system that will enable/disable the debug outlines around the nodes
-fn toggle_overlay(input: Res<ButtonInput<KeyCode>>, mut options: ResMut<UiDebugOptions>) {
-    info_once!("The debug outlines are enabled, press Space to turn them on/off");
-    if input.just_pressed(KeyCode::Space) {
-        // The toggle method will enable the debug_overlay if disabled and disable if enabled
-        options.toggle();
-    }
 }

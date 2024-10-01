@@ -34,7 +34,21 @@ fn build_route(mut commands: Commands, assets: Res<AssetServer>, query: Query<En
                 ui.spawn((
                     root.add("Background"),                           // Here we add the link
                     UiLayout::solid().size((2968.0, 1656.0)).scaling(Scaling::Fill).pack::<Base>(),         // This is where we define layout
-                    UiImage2dBundle::from(assets.load("ui/background.png")),
+                    UiImage2dBundle { texture: assets.load("ui/background.png"),..default() },
+                    
+                ));
+
+                let buttons = root.add("Buttons");
+
+                ui.spawn((
+                    buttons.clone(),
+                    UiLayout::window().pos((Rl(50.) - Ab(134.), Rl(25.))).size((Ab(268.), Rl(50.))).pack::<Base>(),
+                ));
+
+                ui.spawn((
+                    buttons.add("Start"),
+                    UiLayout::solid().size((268., 128.)).scaling(Scaling::Fit).align_y(-1.).pack::<Base>(),
+                    UiImage2dBundle::from(assets.load("ui/Start_BTN.png")),
                 ));
             });
         });
