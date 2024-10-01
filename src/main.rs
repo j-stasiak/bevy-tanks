@@ -6,6 +6,7 @@ pub mod shooting;
 pub mod tank;
 pub mod ui;
 
+use bevy::input::common_conditions::input_just_pressed;
 use bevy::prelude::*;
 use bevy::render::settings::Backends;
 use bevy::render::settings::WgpuSettings;
@@ -35,7 +36,8 @@ fn main() {
             .set(WindowPlugin {
                 primary_window: Some(Window {
                     title: "Tank game".into(),
-                    resolution: (1280.0, 960.0).into(),
+                    // resolution: (1280.0, 960.0).into(),
+                    mode: WindowMode::BorderlessFullscreen,
                     resizable: true,
                     ..default()
                 }),
@@ -59,7 +61,11 @@ fn main() {
     .add_plugins(ShootingPlugin)
     .add_plugins(UiDebugPlugin::<MainUi>::new())
     .insert_state(ApplicationState::MainMenu)
-    .add_systems(Startup, setup);
+    .add_systems(Startup, setup)
+    .add_systems(
+        Update,
+        exit_system.run_if(input_just_pressed(KeyCode::Escape)),
+    );
 
     app.run();
 }

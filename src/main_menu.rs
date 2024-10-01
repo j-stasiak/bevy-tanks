@@ -15,21 +15,28 @@ impl Plugin for MainMenuPlugin {
     }
 }
 
-fn build_route(mut commands: Commands, assets: Res<AssetServer>, query: Query<Entity, Added<MainMenuRoute>>) {
+fn build_route(
+    mut commands: Commands,
+    assets: Res<AssetServer>,
+    query: Query<Entity, Added<MainMenuRoute>>,
+) {
     for route_entity in &query {
-        commands.entity(route_entity).insert(
-            SpatialBundle::default(),
-        ).with_children(|route| {
-            route.spawn((
-                UiTreeBundle::<MainUi>::from(UiTree::new2d("MainMenu")),
-                SourceFromCamera,
-            )).with_children(|ui| {
-                 let root = UiLink::<MainUi>::path("Root");  // Here we can define the name of the node
+        commands
+            .entity(route_entity)
+            .insert(SpatialBundle::default())
+            .with_children(|route| {
+                route
+                    .spawn((
+                        UiTreeBundle::<MainUi>::from(UiTree::new2d("MainMenu")),
+                        SourceFromCamera,
+                    ))
+                    .with_children(|ui| {
+                        let root = UiLink::<MainUi>::path("Root"); // Here we can define the name of the node
 
-                ui.spawn((
-                    root.clone(),                           // Here we add the link
-                    UiLayout::window_full().pack::<Base>(),         // This is where we define layout
-                ));
+                        ui.spawn((
+                            root.clone(),                           // Here we add the link
+                            UiLayout::window_full().pack::<Base>(), // This is where we define layout
+                        ));
 
                 ui.spawn((
                     root.add("Background"),                           // Here we add the link
@@ -51,7 +58,6 @@ fn build_route(mut commands: Commands, assets: Res<AssetServer>, query: Query<En
                     UiImage2dBundle::from(assets.load("ui/Start_BTN.png")),
                 ));
             });
-        });
     }
 }
 
@@ -80,7 +86,10 @@ fn show_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                 // Link the entity
                 UiLink::<MainUi>::path("Root/Start_Button"),
                 // Specify UI layout
-                UiLayout::window().pos(Rl((50.0, 50.0))).size((Rh(45.0), Rl(60.0))).pack::<Base>(),
+                UiLayout::window()
+                    .pos(Rl((50.0, 50.0)))
+                    .size((Rh(45.0), Rl(60.0)))
+                    .pack::<Base>(),
                 // Add image to the entity
                 UiImage2dBundle::from(asset_server.load("ui/Start_BTN.png")),
             ));
