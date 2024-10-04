@@ -12,6 +12,7 @@ use bevy::render::settings::Backends;
 use bevy::render::settings::WgpuSettings;
 use bevy::render::RenderPlugin;
 
+use bevy::window::WindowMode;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_lunex::prelude::MainUi;
 use bevy_lunex::UiDebugPlugin;
@@ -21,6 +22,7 @@ use main_menu::MainMenuPlugin;
 use main_menu::MainMenuRoute;
 use shooting::ShootingPlugin;
 use tank::TankPlugin;
+use ui::primary_button::PrimaryButtonPlugin;
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash)]
 enum ApplicationState {
@@ -55,21 +57,28 @@ fn main() {
     )
     .add_plugins(UiDefaultPlugins)
     .add_plugins(MainMenuPlugin)
+    .add_plugins(PrimaryButtonPlugin)
     .add_plugins(CameraPlugin)
     .add_plugins(WorldInspectorPlugin::new())
     .add_plugins(TankPlugin)
     .add_plugins(ShootingPlugin)
     .add_plugins(UiDebugPlugin::<MainUi>::new())
     .insert_state(ApplicationState::MainMenu)
-    .add_systems(Startup, setup)
+    .add_systems(OnEnter(ApplicationState::MainMenu), setup_main_menu)
     .add_systems(
         Update,
-        exit_system.run_if(input_just_pressed(KeyCode::Escape)),
+        return_to_menu
+            .run_if(input_just_pressed(KeyCode::Escape))
+            .run_if(in_state(ApplicationState::InGame)),
     );
 
     app.run();
 }
 
-fn setup(mut commands: Commands) {
+fn setup_main_menu(mut commands: Commands) {
     commands.spawn(MainMenuRoute);
+}
+
+fn return_to_menu(mut next_state: ResMut<NextState<ApplicationState>>) {
+    next_state.set(ApplicationState::MainMenu);
 }

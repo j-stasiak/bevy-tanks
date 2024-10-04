@@ -1,5 +1,5 @@
 use bevy::{input::mouse::MouseWheel, prelude::*};
-use bevy_lunex::prelude::MainUi;
+use bevy_lunex::{prelude::MainUi, CursorBundle};
 
 use crate::{get_single_mut_or_return, get_single_or_return, ApplicationState};
 
@@ -22,6 +22,14 @@ impl Plugin for CameraPlugin {
         app.add_systems(OnEnter(ApplicationState::MainMenu), init_main_menu_camera);
         app.add_systems(OnEnter(ApplicationState::InGame), init_camera);
         app.add_systems(
+            OnExit(ApplicationState::MainMenu),
+            despawn_camera::<MainMenuCamera>,
+        );
+        app.add_systems(
+            OnExit(ApplicationState::InGame),
+            despawn_camera::<GameCamera>,
+        );
+        app.add_systems(
             Update,
             (follow_entity, zoom_camera).run_if(in_state(ApplicationState::InGame)),
         );
@@ -29,13 +37,18 @@ impl Plugin for CameraPlugin {
 }
 
 fn init_main_menu_camera(mut commands: Commands) {
-    commands.spawn((
-        Camera2dBundle {
-            transform: Transform::from_xyz(0.0, 0.0, 1000.0),
-            ..default()
-        },
-        MainUi,
-    ));
+    commands
+        .spawn((
+            Camera2dBundle {
+                transform: Transform::from_xyz(0.0, 0.0, 1000.0),
+                ..default()
+            },
+            MainUi,
+            MainMenuCamera,
+        ))
+        .with_children(|parent| {
+            parent.spawn(CursorBundle::default());
+        });
 }
 
 fn init_camera(mut commands: Commands) {
@@ -69,4 +82,12 @@ fn zoom_camera(
             MouseScrollUnit::Pixel => (),
         }
     }
+}
+
+fn despawn_camera<T: Component>(
+    mut commands: Commands,
+    camera_entity_query: Query<Entity, With<T>>,
+) {
+    let camera = get_single_or_return!(camera_entity_query);
+    commands.entity(camera).despawn_recursive();
 }

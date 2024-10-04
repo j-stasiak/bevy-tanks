@@ -23,6 +23,7 @@ impl Plugin for TankPlugin {
         });
         app.add_event::<SpawnTankEvent>();
         app.add_systems(OnEnter(ApplicationState::InGame), load_tank);
+        app.add_systems(OnExit(ApplicationState::InGame), remove_tanks);
         app.add_systems(
             Update,
             (shoot_handler, spawn_tank_listener).run_if(in_state(ApplicationState::InGame)),
@@ -238,4 +239,10 @@ fn load_tanks(asset_server: Res<AssetServer>, mut tank_handlers: ResMut<TankAsse
     }
 
     tank_handlers.loading_items += tank_handlers.handles.len() as i32;
+}
+
+fn remove_tanks(mut commands: Commands, query: Query<Entity, With<Tank>>) {
+    for entity in query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
 }
