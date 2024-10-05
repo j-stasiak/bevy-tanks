@@ -12,17 +12,6 @@ pub struct TankConfiguration {
     pub gun_turning_speed: f32,
 }
 
-impl Into<TankConfiguration> for (f32, f32, Vec2, f32) {
-    fn into(self) -> TankConfiguration {
-        TankConfiguration {
-            speed: self.0,
-            turning_speed: self.1,
-            mounting_point: self.2,
-            gun_turning_speed: self.3,
-        }
-    }
-}
-
 pub enum TankColor {
     Green,
     Brown,
@@ -57,62 +46,54 @@ impl TankType {
 
     pub fn get_configuration(&self) -> TankConfiguration {
         match self {
-            TankType::Lion => (
-                400.,
-                f32::to_radians(90.),
-                Vec2::new(0., -40.),
-                f32::to_radians(180.),
-            )
-                .into(),
-            TankType::Bear => (
-                400.,
-                f32::to_radians(90.),
-                Vec2::new(0., -40.),
-                f32::to_radians(180.),
-            )
-                .into(),
-            TankType::Shark => (
-                400.,
-                f32::to_radians(90.),
-                Vec2::new(0., -40.),
-                f32::to_radians(180.),
-            )
-                .into(),
-            TankType::Ant => (
-                400.,
-                f32::to_radians(90.),
-                Vec2::new(0., -40.),
-                f32::to_radians(180.),
-            )
-                .into(),
-            TankType::Mantis => (
-                400.,
-                f32::to_radians(90.),
-                Vec2::new(0., -40.),
-                f32::to_radians(180.),
-            )
-                .into(),
-            TankType::Gorilla => (
-                400.,
-                f32::to_radians(90.),
-                Vec2::new(0., -40.),
-                f32::to_radians(180.),
-            )
-                .into(),
-            TankType::Falcon => (
-                400.,
-                f32::to_radians(90.),
-                Vec2::new(0., -40.),
-                f32::to_radians(180.),
-            )
-                .into(),
-            TankType::Dragon => (
-                400.,
-                f32::to_radians(90.),
-                Vec2::new(0., -40.),
-                f32::to_radians(180.),
-            )
-                .into(),
+            TankType::Lion => TankConfiguration {
+                speed: 400.,
+                turning_speed: f32::to_radians(90.),
+                mounting_point: Vec2::new(0., -40.),
+                gun_turning_speed: f32::to_radians(180.),
+            },
+            TankType::Bear => TankConfiguration {
+                speed: 400.,
+                turning_speed: f32::to_radians(90.),
+                mounting_point: Vec2::new(0., -40.),
+                gun_turning_speed: f32::to_radians(180.),
+            },
+            TankType::Shark => TankConfiguration {
+                speed: 400.,
+                turning_speed: f32::to_radians(90.),
+                mounting_point: Vec2::new(0., -40.),
+                gun_turning_speed: f32::to_radians(180.),
+            },
+            TankType::Ant => TankConfiguration {
+                speed: 400.,
+                turning_speed: f32::to_radians(90.),
+                mounting_point: Vec2::new(0., -40.),
+                gun_turning_speed: f32::to_radians(180.),
+            },
+            TankType::Mantis => TankConfiguration {
+                speed: 400.,
+                turning_speed: f32::to_radians(90.),
+                mounting_point: Vec2::new(0., -40.),
+                gun_turning_speed: f32::to_radians(180.),
+            },
+            TankType::Gorilla => TankConfiguration {
+                speed: 400.,
+                turning_speed: f32::to_radians(90.),
+                mounting_point: Vec2::new(0., -40.),
+                gun_turning_speed: f32::to_radians(180.),
+            },
+            TankType::Falcon => TankConfiguration {
+                speed: 400.,
+                turning_speed: f32::to_radians(90.),
+                mounting_point: Vec2::new(0., -40.),
+                gun_turning_speed: f32::to_radians(180.),
+            },
+            TankType::Dragon => TankConfiguration {
+                speed: 400.,
+                turning_speed: f32::to_radians(90.),
+                mounting_point: Vec2::new(0., -40.),
+                gun_turning_speed: f32::to_radians(180.),
+            },
         }
     }
 }
